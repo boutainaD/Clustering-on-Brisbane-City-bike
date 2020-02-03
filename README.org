@@ -1,0 +1,74 @@
+# Clustering-on-Brisbane-City-bike
+#+TITLE: Static geographical information of CityBike‘s stations in Brisbane (“Brisbane_CityBike.json”)
+
+* Table of Contents                                       :TOC_4_gh:noexport:
+- [[#Dataset][Dataset]]
+    - [[#Schema][schema]]
+- [[#Spatial Clustering][Spatial Clustering]]
+    - [[#Kmeans][Kmeans]]
+        - [[#Elbow Method][Elbow Method]]
+    - [[#DBSCAN][DBSCAN]]
+        - [[#Euclidean Distance Metrics][Euclidean Distance Metrics]]
+         - [[#Self-defined Distance Metrics][Self-defined Distance Metrics]]
+    - [[#Observation & Comparisons][Observation & Comparisons]]
+   
+  
+* Dataset
+- Brisbane Bike Trip Histories
+** Schema
+- number
+- name
+- adress
+- latitude
+- longiture
+
+* Spatial Clustering
+Using stations’ geo-information to do clustering
+
+** Kmeans
+We will utilize scikit-learn function sklearn.cluster.KMeans.
+Parameters:
+- k     (Number of clusters)
+*** Elbow Method
+The Elbow method is a method of interpretation and validation of consistency within cluster analysis designed to help finding the appropriate number of clusters in a dataset. This method looks at the percentage of variance explained as a function of the number of clusters: One should choose a number of clusters so that adding another cluster doesn’t give much better modeling of the data.
+
+Percentage of variance explained is the ratio of the between-group variance to the total variance.
+
+Correspond to the figure above, the proper value for k may be 2, 3, or 4.
+
+Here I will cluster the data points using different values of k.
+
+In my opinion, 3 or 4 clutsers can both well explains the geo-information of these citibike stations.
+
+** DBSCAN
+We will utilize scikit-learn function sklearn.cluster.DBSCAN.
+
+*** Euclidean Distance Metrics
+Euclidean distance or Euclidean metric is one of the most common distance metrics, which is the “ordinary” straight-line distance between two points in Euclidean space.
+
+With metric="euclidean", here I also use the combinations of different values of eps and min_sample, where eps ranges from 0.004 to 0.006 (unit: latitude/longitude) and min_sample ranges from 3 to 5.
+
+Note that in the above figures, I only draw the core points and the boundary points. That is, you will see that some stations are missing on the map since they are consider as noise points using the specified parameters.
+
+When eps = 0.04, this radius is so small that the clusters found are somehow too trivial. In addition, the clustering result are all similar with greater values of eps.
+
+*** Self-defined Distance Metrics
+Since these stations are on Earth, it would be more precise if we use great-circle distance instead of Euclidean distance. The great-circle distance or orthodromic distance is the shortest distance between two points on the surface of a sphere, measured along the surface of the sphere.
+
+Here I also use the combinations of different values of eps and min_sample, where eps ranges from 500 to 700 (unit: meters) and min_sample ranges from 5 to 10.
+
+The clustering result is better with the great-circle distance, which is not surprised since the length of a longitude unit is not the same as the length of a latitude unit, undoubtedly.
+
+Furthermore, the clustering results are more meaningful. For example, see the figure at lower left, all clusters are stations that has 10 neighbors in 500 meters, so we can even conclude that these clusters are districts with high population density or high population flows.
+
+** Observation & Comparisons
+To observe and compare the clustering result of KMeans and DBSCAN with differnt parameter values, I pick some of the best clustering results from each method, which are shown in the figures below:
+
+Here are some conclusions:
+
+1. With DBSCAN, some stations would be missing and some clusters’ sizes are too small; With KMeans, all stations would be clustered and their sizes are similar.
+2. With DBSCAN, we can separate stations which are on the different side of the river; With KMeans, stations on the different side of the river can not be well-separated.
+3. Using the great circle distance metrics would get more reasonable and also better clustering result.
+
+
+# Clustering-on-Brisbane-City-bike => for more details look at the code(citybike.ipynb) from GOOGLE COLAB
